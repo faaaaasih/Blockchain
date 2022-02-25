@@ -3,7 +3,7 @@ import json
 from flask import Flask
 
 
-#app = Flask(__name__)
+app = Flask(__name__)
 
 
 class CreateBlock:
@@ -14,16 +14,14 @@ class CreateBlock:
         hex = hashvalue.hexdigest()
         return hex
     
-    def createBlock(self,Blocknumber,data):
-        numtostr = str(Blocknumber)
-        dicttostr = str(data)
+    def mineblock(self,data):
         index =0
         nonce =0
 
         hashedvalue = ""
 
         while (index == 0):
-            finaldata = numtostr + dicttostr + str(nonce)
+            finaldata = str(data)+ str(nonce)
             hashedvalue = self.hashdata(finaldata)
             first4hash = hashedvalue[0:4]
             nonce+=1
@@ -31,28 +29,38 @@ class CreateBlock:
             if (first4hash == "0000"):
                 break
         
+        return nonce,hashedvalue
+
+    
+    def createBlock(self,Blocknumber,data):
+        numtostr = str(Blocknumber)
+        dicttostr = str(data)
+        data_to_be_mined = numtostr + dicttostr
+
+        value_nonce,hash_value_mined = self.mineblock(data_to_be_mined)
         
         finalBlock = {
         "BLOCK NUMBER": Blocknumber,
-        "NONCE": nonce,
+        "NONCE": value_nonce,
         "DATA TX": data,
-        "HASH": hashedvalue}
+        "HASH": hash_value_mined}
 
         finalBlockdict = json.dumps(finalBlock, indent=4)
 
         return finalBlockdict
 
 
+@app.route('/')
+def blockcreation():
 
-block = CreateBlock()
+    block = CreateBlock()
 
-a = block.createBlock(1,
-{"Hello":"MynameisFasih",
- "StupidIdiot": "GetLost"})
+    a = block.createBlock(1,
+    {"Hello":"MynameisFasih",
+    "StupidIdiot": "GetLost"})
+    
+    return a
 
-
-
-print (a)
 
 
 """    
